@@ -10,6 +10,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rs/zerolog v1.20.0
+	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	golang.org/x/net v0.0.0-20200925080053-05aa5d4ee321 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208 // indirect
 	gopkg.in/couchbase/gocbcore.v7 v7.1.18 // indirect
