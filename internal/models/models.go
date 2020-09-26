@@ -7,8 +7,15 @@ import (
 
 type CellType int
 
+const (
+	EmptyCellType = 0
+	WallCellType  = 1
+	PCCellType    = 2
+	BooksCellType = 3
+)
+
 func (c CellType) IsBarrier() bool {
-	return c == 1
+	return c != EmptyCellType
 }
 
 func (c CellType) GetMoveCost() int64 {
@@ -17,10 +24,12 @@ func (c CellType) GetMoveCost() int64 {
 
 // Сущность стола/полки/чего угодно
 type Entity struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	CellID string `json:"cell_id"`
-	AreaID string `json:"area_id"`
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+
+	CellID   string `json:"cell_id"`
+	AreaName string `json:"area_id"`
 }
 
 // Клеточка на карте
@@ -31,8 +40,7 @@ type Cell struct {
 
 // Карта для библиотеки
 type Area struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
+	Name   string `json:"name"` // key
 	Width  int64  `json:"width"`
 	Height int64  `json:"height"`
 

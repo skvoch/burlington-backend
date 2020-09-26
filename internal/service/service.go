@@ -60,17 +60,13 @@ func (s *Service) GetArea(id string) (models.Area, error) {
 }
 
 func (s *Service) SetArea(area models.Area) error {
-	if err := s.repo.Areas().Set(area.ID, area); err != nil {
+	if area.Name == "" {
+		return fmt.Errorf("area name shouldn't be empty")
+	}
+
+	if err := s.repo.Areas().Set(area.Name, area); err != nil {
 		return fmt.Errorf("failed to set area: %w", err)
 	}
-	return nil
-}
-
-func (s *Service) CreateArea(area models.Area) error {
-	if _, err := s.repo.Areas().Create(area); err != nil {
-		return fmt.Errorf("failed to create area: %w", err)
-	}
-
 	return nil
 }
 

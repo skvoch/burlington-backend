@@ -8,14 +8,12 @@ type Repositories interface {
 }
 
 type AreaRepository interface {
-	Create(area models.Area) (string, error)
 	Get(id string) (models.Area, error)
 	Set(id string, area models.Area) error
 }
 
 type EntityRepository interface {
-	Create(entity models.Entity) (string, error)
 	Get(id string) (models.Entity, error)
+	Set(entity models.Entity) error
 	GetByAreaName(areaName string) []models.Entity
-	Set(id string, entity models.Entity) error
 }
