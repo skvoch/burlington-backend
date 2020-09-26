@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/skvoch/burlington-backend/tree/master/internal/models"
 	"github.com/skvoch/burlington-backend/tree/master/internal/service"
+	"github.com/skvoch/burlington-backend/tree/master/internal/qr"
 	"golang.org/x/net/context"
 	"net/http"
 )
@@ -35,6 +36,8 @@ func (t *serviceHTTP) registerHandlers() {
 
 	api.Handle(http.MethodGet, "/area", t.getArea)
 	api.Handle(http.MethodPost, "/area", t.setArea)
+	api.Handle(http.MethodGet, "/entity", t.setArea)
+	api.Handle(http.MethodPost, "/entity", t.setArea)
 }
 
 func (t *serviceHTTP) Run() {
@@ -85,5 +88,43 @@ func (t *serviceHTTP) setArea(c *gin.Context){
 		t.logger.Err(err)
 	}else{
 		c.JSON(http.StatusOK, res)
+	}
+}
+
+func (t *serviceHTTP) getEntity(c *gin.Context){
+	//id := c.Params.ByName("id")
+	id, _ := c.Params.Get("id")
+	fmt.Print(id)
+	entity, err := service.GetEntity(id)
+	if err != nil{
+		c.JSON(http.StatusNotFound, gin.H{})
+		t.logger.Err(err).Msgf("id is %v", id)
+	}else{
+		c.JSON(http.StatusOK, entity)
+	}
+}
+
+func (t * serviceHTTP) setEntity(c *gin.Context){
+	var json models.Entity
+	if err := c.BindJSON(json); err != nil{
+		t.logger.Err(err)
+		return
+	}
+	res, err := service.SetEntity(json)
+	if err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{})
+		t.logger.Err(err)
+	}else{
+		c.JSON(http.StatusOK, res)
+	}
+}
+
+func (t *serviceHTTP) getQr(c *gin.Context){
+	id := c.Params.Get("id")
+	img, err := qr.Generate(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, nil)
+	}else{
+		c.JSON(http.StatusOK, img)
 	}
 }

@@ -53,6 +53,9 @@ func SetArea(jsonObj string) (string, error){
 
 func SetAreaModel(jsonObj models.Area) (string, error){
 	rep, err := RepInit(rep)
+	if err != nil{
+		return "", fmt.Errorf("Repository problem, err : %w", err)
+	}
 	area := rep.Areas()
 	id, err := area.Create(jsonObj)
 	if err != nil{
@@ -63,6 +66,24 @@ func SetAreaModel(jsonObj models.Area) (string, error){
 
 //entity
 
-//func GetEntity(id string)(models.Entity, error){
-//
-//}
+func GetEntity(id string)(models.Entity, error){
+	rep, err := RepInit(rep)
+	if err != nil{
+		return models.Entity{}, fmt.Errorf("Repository problem, err : %w", err)
+	}
+	entity := rep.Entities()
+	return entity.Get(id)
+}
+
+func SetEntity(model models.Entity) (string, error) {
+	rep, err := RepInit(rep)
+	if err != nil{
+		return "", fmt.Errorf("Repository problem, err : %w", err)
+	}
+	entity := rep.Entities()
+	id, err := entity.Create(model)
+	if err != nil{
+		return "", fmt.Errorf("failed to upsert object, err: %w", err)
+	}
+	return fmt.Sprintf("object with id %v was added successfully", id), nil
+}
