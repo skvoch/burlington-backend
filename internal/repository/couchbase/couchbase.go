@@ -62,7 +62,6 @@ func (r *Repositories)Areas() repository.AreaRepository{
 	return res
 }
 
-
 //Area
 type AreaRepo struct {
 	bucket *gocb.Bucket
