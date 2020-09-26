@@ -25,7 +25,7 @@ func New(user, password, host string) (*Repositories, error) {
 		return nil, fmt.Errorf("failed to conncet to couchbase: %v", err)
 	}
 
-	areaBucket := cluster.Bucket(areaBucketName)
+	areaBucket := cluster.Bucket("area_bucket")
 	if err := areaBucket.WaitUntilReady(time.Second*5, nil); err != nil {
 		return nil, fmt.Errorf("failed to conncet to area bucket: %w", err)
 	}

@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -11,22 +10,29 @@ import (
 	"net/http"
 )
 
-type serviceHTTP struct {
-	bindURL      string
-	router       *gin.Engine
-	server       *http.Server
-
-	logger zerolog.Logger
+type response struct {
+	Error string `json:"error,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
-func New(bindUrl string, logger zerolog.Logger)*serviceHTTP{
+func New(bindUrl string, logger zerolog.Logger, service *service.Service)*serviceHTTP{
 	res := serviceHTTP{
 		router: gin.Default(),
 		bindURL: bindUrl,
 		logger: logger,
+		service: service,
 	}
 	res.registerHandlers()
 	return &res
+}
+
+type serviceHTTP struct {
+	bindURL      string
+	router       *gin.Engine
+	server       *http.Server
+	service *service.Service
+
+	logger zerolog.Logger
 }
 
 func (t *serviceHTTP) registerHandlers() {
@@ -61,29 +67,38 @@ func (t *serviceHTTP) Stop() error {
 }
 
 func (t *serviceHTTP) getArea(c *gin.Context) {
-	//id := c.Params.ByName("id")
 	id, _ := c.Params.Get("id")
-	fmt.Print(id)
-	area, err := service.GetArea(id)
+
+	area, err := t.service.GetArea(id)
+
 	if err != nil{
-		c.JSON(http.StatusNotFound, gin.H{})
-		t.logger.Err(err).Msgf("id is %v", id)
-	}else{
-		c.JSON(http.StatusOK, area)
+		c.JSON(http.StatusNotFound, &response{
+			Error: "area not found",
+		})
+		return
 	}
+
+	c.JSON(http.StatusOK, area)
 }
 
 func (t *serviceHTTP) setArea(c *gin.Context){
-	var json models.Area
-	if err := c.BindJSON(json); err != nil{
-		t.logger.Err(err)
+	var area models.Area
+
+	if err := c.BindJSON(&area); err != nil{
+		t.logger.Error().Err(err).Msg("binding json to object")
+		c.JSON(http.StatusBadRequest, &response{
+			Error: "incorrect input json",
+		})
 		return
 	}
-	res, err := service.SetAreaModel(json)
-	if err != nil{
-		c.JSON(http.StatusBadRequest, gin.H{})
-		t.logger.Err(err)
-	}else{
-		c.JSON(http.StatusOK, res)
+
+	if err := t.service.SetArea(area); err != nil {
+		c.JSON(http.StatusInternalServerError, &response{
+			Error: "internal service error",
+		})
+		return
 	}
+	c.JSON(http.StatusOK, response{
+		Message: "ok",
+	})
 }
