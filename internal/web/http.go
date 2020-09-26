@@ -41,12 +41,17 @@ func (t *serviceHTTP) registerHandlers() {
 
 	api := t.router.Group("/api")
 
+	//  /api/area?id=1212
 	api.Handle(http.MethodGet, "/area", t.getArea)
+	// url + json
 	api.Handle(http.MethodPost, "/area", t.setArea)
 
+	//  /api/entity?id=1212
 	api.Handle(http.MethodGet, "/entity", t.getEntity)
+	// url + json
 	api.Handle(http.MethodPost, "/entity", t.setEntity)
 
+	//  /api/qr?id=123123
 	api.Handle(http.MethodGet, "/qr", t.getQr)
 
 	api.Handle(http.MethodPost, "/find_path", t.findPath)
