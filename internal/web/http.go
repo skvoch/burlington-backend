@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -42,6 +43,10 @@ func (t *serviceHTTP) registerHandlers() {
 
 	api.Handle(http.MethodGet, "/area", t.getArea)
 	api.Handle(http.MethodPost, "/area", t.setArea)
+
+	api.Handle(http.MethodGet, "/entity", t.getEntity)
+	api.Handle(http.MethodPost, "/entity", t.setEntity)
+
 	api.Handle(http.MethodGet, "/qr", t.getQr)
 
 	api.Handle(http.MethodPost, "/find_path", t.findPath)
@@ -147,34 +152,33 @@ func (t *serviceHTTP) setArea(c *gin.Context) {
 		Message: "ok",
 	})
 }
-//
-//func (t *serviceHTTP) getEntity(c *gin.Context){
-//	//id := c.Params.ByName("id")
-//	id, _ := c.Params.Get("id")
-//	fmt.Print(id)
-//	entity, err := service.GetEntity(id)
-//	if err != nil{
-//		c.JSON(http.StatusNotFound, gin.H{})
-//		t.logger.Err(err).Msgf("id is %v", id)
-//	}else{
-//		c.JSON(http.StatusOK, entity)
-//	}
-//}
-//
-//func (t * serviceHTTP) setEntity(c *gin.Context){
-//	var json models.Entity
-//	if err := c.BindJSON(json); err != nil{
-//		t.logger.Err(err)
-//		return
-//	}
-//	res, err := t.service.SetEntity(json)
-//	if err != nil{
-//		c.JSON(http.StatusBadRequest, gin.H{})
-//		t.logger.Err(err)
-//	}else{
-//		c.JSON(http.StatusOK, res)
-//	}
-//}
+
+func (t *serviceHTTP) getEntity(c *gin.Context){
+	//id := c.Params.ByName("id")
+	id := c.Query("id")
+	fmt.Print(id)
+	entity, err := t.service.GetEntity(id)
+	if err != nil{
+		c.JSON(http.StatusNotFound, gin.H{})
+		t.logger.Err(err).Msgf("id is %v", id)
+	}else{
+		c.JSON(http.StatusOK, entity)
+	}
+}
+
+func (t * serviceHTTP) setEntity(c *gin.Context){
+	var entity models.Entity
+	if err := c.BindJSON(entity); err != nil{
+		t.logger.Err(err)
+		c.JSON(http.StatusBadRequest, &response{Error: "internal service error"})
+	}
+	if err:= t.service.CreateEntity(entity); err != nil{
+		c.JSON(http.StatusBadRequest, &response{Error: "internal service error"})
+		t.logger.Err(err)
+	}else{
+		c.JSON(http.StatusOK, &response{Message: "ok"})
+	}
+}
 
 func (t *serviceHTTP) getQr(c *gin.Context){
 	id := c.Query("id")
