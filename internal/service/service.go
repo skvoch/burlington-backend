@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/rs/zerolog"
+	"github.com/skvoch/burlington-backend/tree/master/internal/finder"
 	"github.com/skvoch/burlington-backend/tree/master/internal/models"
 	"github.com/skvoch/burlington-backend/tree/master/internal/repository/couchbase"
 )
@@ -17,12 +18,12 @@ const (
 
 type Opts struct {
 	Logger zerolog.Logger
-	Repo *couchbase.Repositories
+	Repo   *couchbase.Repositories
 }
 
 func New(opts *Opts) *Service {
 	return &Service{
-		repo: opts.Repo,
+		repo:   opts.Repo,
 		logger: opts.Logger,
 	}
 }
@@ -33,16 +34,31 @@ type Service struct {
 	repo *couchbase.Repositories
 }
 
-func (s *Service) GetArea(id string)(models.Area, error){
+func (s *Service) FindPath(areaName string, start, target models.XYZ) (*finder.FindResult, error) {
+	area, err := s.repo.Areas().Get(areaName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get area: %w", err)
+	}
+	reader := newCellsReader(area)
+	result, err := finder.FindPath(finder.FindPathParams{
+		StartCell:  start,
+		TargetCell: target,
+		Reader:     reader,
+	})
+
+	return result, nil
+}
+
+func (s *Service) GetArea(id string) (models.Area, error) {
 	area, err := s.repo.Areas().Get(id)
 	if err != nil {
 		return models.Area{}, fmt.Errorf("failed to get area: %w", err)
 	}
 
-	return area,nil
+	return area, nil
 }
 
-func (s *Service) SetArea(area models.Area) error{
+func (s *Service) SetArea(area models.Area) error {
 	if err := s.repo.Areas().Set(area.ID, area); err != nil {
 		return fmt.Errorf("failed to set area: %w", err)
 	}
@@ -56,6 +72,7 @@ func (s *Service) CreateArea(area models.Area) error {
 
 	return nil
 }
+
 /*
 func SetAreaModel(jsonObj models.Area) (string, error){
 	rep, err := RepInit(rep)
