@@ -67,38 +67,23 @@ func (s *Service) SetArea(area models.Area) error {
 	if err := s.repo.Areas().Set(area.Name, area); err != nil {
 		return fmt.Errorf("failed to set area: %w", err)
 	}
+
 	return nil
 }
 
-
-func (s *Service) GetEntity(id string)(models.Entity, error){
-	entity, err := s.repo.Entities().Get(id)
+/*
+func SetAreaModel(jsonObj models.Area) (string, error){
+	rep, err := RepInit(rep)
+	area := rep.Areas()
+	id, err := area.Create(jsonObj)
 	if err != nil{
-		return models.Entity{}, fmt.Errorf("Failed to get entity, err %w", err)
+		return "", fmt.Errorf("failed to upsert object, err: %w", err)
 	}
-
-	return entity, nil
-}
-func (s *Service) SetEntity(entity models.Entity) error{
-	if err := s.repo.Entities().Set(entity.ID, entity); err != nil{
-		return fmt.Errorf("failed to set area : %w", err)
-	}
-	return nil
+	return fmt.Sprintf("object with id %v was added successfully", id), nil
 }
 
-func (s *Service) CreateEntity(entity models.Entity) error{
-	if _, err := s.repo.Entities().Create(entity); err != nil{
-		return fmt.Errorf("failed to sreate entity")
-	}
-	return nil
-}
+//entity
 
-
-func (s *Service) GenerateQR(id string) (image.Image, error){
-	if img, err := qr.Generate(id); err != nil{
-		return nil, fmt.Errorf("Failed to generate QR: %w", err)
-	}else{
-		return img, nil
-	}
-}
-
+//func GetEntity(id string)(models.Entity, error){
+//
+//}*/
